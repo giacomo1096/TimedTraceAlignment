@@ -1,4 +1,3 @@
-
 (define (domain trace-alignment)
     (:requirements :strips :typing :equality :adl :fluents )
     
@@ -17,7 +16,7 @@
         (cur_state_t ?t - trace_state)
         (cur_state_s ?s - automaton_state)
         
-        ;final accepting state of a constraint/trace automaton.
+        ;final ac- cepting state of a constraint/trace automaton.
         (final_state_t ?t - trace_state) 
         (final_state_s ?s - automaton_state) 
         

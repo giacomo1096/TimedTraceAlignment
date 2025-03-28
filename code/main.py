@@ -29,18 +29,13 @@ def main():
     parser = argparse.ArgumentParser(description='Process a .xes and a .decl file.')
     parser.add_argument('-log', '--log_file', type=str, required=True, help='The .xes log file to be processed')
     parser.add_argument('-decl', '--decl_file', type=str, required=True, help='The .decl file to be processed')
-    parser.add_argument('-dom', '--domain', type=str, required=True, help='The domain name')
 
     # Parsing degli argomenti
     args = parser.parse_args()
 
     # Scegliere il dominio
-    domains = ["LTL-d", "MTL", "MTL-d"]
+    args.domain = "MTL"
 
-    # Verificare che l'input sia valido
-    if args.domain not in domains:
-        print("Invalid input. Insert one of these options: LTL-d, MTL, MTL-d.")
-        return
 
     # Processare i file
     process_files(args.log_file, args.decl_file, args.domain)

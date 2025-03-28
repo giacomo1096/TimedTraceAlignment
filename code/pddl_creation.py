@@ -1,5 +1,5 @@
 import os
-from helpers import extract_states, extract_final_states
+from helpers import extract_states, extract_final_states, extract_names
 
 def create_pddl_files(trace_activity, automata_list, activities_trace, automata_dict, durations, timelags, activities, user_input):
     output_dir = 'Problems'
@@ -23,6 +23,11 @@ def create_pddl_files(trace_activity, automata_list, activities_trace, automata_
                 for state in states:
                     f.write(f"{state} ")
             f.write(f"- automaton_state\n")
+            for automaton in automata_list:
+                names = extract_names(automaton)
+                for name in names:
+                    f.write(f"{name} ")
+            f.write("- automaton_name\n")
             appended = []
             for act in activities:
                 
@@ -30,6 +35,7 @@ def create_pddl_files(trace_activity, automata_list, activities_trace, automata_
                     f.write(f"{act} ")
                     appended.append(act)
             f.write(f"- activity\n)\n")
+            
 
             #init
             f.write(f"\n(:init\n")
@@ -43,6 +49,8 @@ def create_pddl_files(trace_activity, automata_list, activities_trace, automata_
 
             for automata in automata_list:
                 f.write(f"{automata}\n\n")
+            
+            
             
             for i in range(len(events)):
                 f.write(f"(= (timestamp t{i} t{i+1}) {events[i].split(':')[1]})\n")
@@ -84,8 +92,12 @@ def create_pddl_files(trace_activity, automata_list, activities_trace, automata_
                         duration_appended.add(event_name)
              
             
-            if (user_input == "MTL-d" or user_input =="MTL"):
-                 f.write(f"(= (start_clock) 0)\n")
+            if user_input in ["MTL-d", "MTL"]:
+                # Scrive start_clock per ogni automa con il nome estratto
+                for automaton in automata_list:
+                    names = extract_names(automaton)  # Estrai i nomi degli automi
+                    for name in names:
+                        f.write(f"(= (start_clock {name}) 0)\n")
             f.write(f"\n(= (current_timestamp) 0)\n(= (total-cost) 0)")
             f.write(f"\n)\n")
 

@@ -119,6 +119,20 @@ def extract_states(automaton):
     
     return sorted_states
 
+def extract_names(automaton):
+    names = set()
+    
+    # Trova l'ultima parola (dopo l'ultimo spazio) di ogni transizione che è il nome dell'automa
+    matches = re.findall(r'\(automaton .+ (\w+)\)', automaton)
+    
+    for match in matches:
+        names.add(match)
+
+    # Ordina i nomi per coerenza
+    sorted_names = sorted(names)
+    
+    return sorted_names
+
 def extract_final_states(automaton):
     
     states = set()
@@ -142,9 +156,8 @@ def process_declare(automata_dict, user_input, events):
     # -----------EXISTENCE TEMPLATE-------------------#
     def handle_existence(activity,min_time,max_time):
         activity = activity.strip()  # Rimuove spazi da activity1
-        
 
-        result = f";existence\n(cur_state_s a0)\n(automaton a0 {activity} a1)\n(final_state_s a1)\n"
+        result = f";existence\n(cur_state_s a0)\n(automaton a0 {activity} a1 a)\n(final_state_s a1)\n"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(= (min_t_condition a0 a1 {activity}) {min_time})\n(= (max_t_condition a0 a1 {activity}) {max_time})\n"
         return result
@@ -153,7 +166,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";choice\n(cur_state_s b0)\n(automaton b0 {activity1} b1)(automaton b0 {activity2} b1)\n(final_state_s b1)\n"
+        result = f";choice\n(cur_state_s b0)\n(automaton b0 {activity1} b1 b)(automaton b0 {activity2} b1 b)\n(final_state_s b1)\n"
        
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             for (activity, min_time, max_time) in time_constraints:
@@ -168,7 +181,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";exclusive-choice\n(cur_state_s c0)\n(automaton c0 {activity2} c1)(automaton c0 {activity1} c3)(automaton c3 {activity2} c2)(automaton c1 {activity1} c2)\n(final_state_s c0)(final_state_s c1)(final_state_s c3)\n"
+        result = f";exclusive-choice\n(cur_state_s c0)\n(automaton c0 {activity2} c1 c)(automaton c0 {activity1} c3 c)(automaton c3 {activity2} c2 c)(automaton c1 {activity1} c2 c)\n(final_state_s c0)(final_state_s c1)(final_state_s c3)\n"
         transitions = [
             ('c0', 'c3', activity1),
             ('c0', 'c1', activity2),
@@ -195,7 +208,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Response \n(cur_state_s d0)\n(automaton d0 {activity1} d1)\n(automaton d1 {activity2} d0)\n(final_state_s d0)"
+        result = f";Response \n(cur_state_s d0)\n(automaton d0 {activity1} d1 d)\n(automaton d1 {activity2} d0 d)\n(final_state_s d0)"
         if user_input in ['MTL', 'MTL-d']:
             result += f"\n(clock d0 d1)\n\n"
 
@@ -222,7 +235,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Alternate Response \n(cur_state_s e0)\n(automaton e0 {activity1} e1)(automaton e1 {activity2} e0)(automaton e1 {activity1} e2)\n(final_state_s e0)"
+        result = f";Alternate Response \n(cur_state_s e0)\n(automaton e0 {activity1} e1 e)(automaton e1 {activity2} e0 e)(automaton e1 {activity1} e2 e)\n(final_state_s e0)"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(clock e0 e1)\n\n"
 
@@ -243,7 +256,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Precedence \n(cur_state_s g0)(automaton g0 {activity2} g1)(automaton g0 {activity1} g2)(automaton g2 {activity2} g3)(final_state_s g0)(final_state_s g2)(final_state_s g3)\n"
+        result = f";Precedence \n(cur_state_s g0)(automaton g0 {activity2} g1 g)(automaton g0 {activity1} g2 g)(automaton g2 {activity2} g3 g)(final_state_s g0)(final_state_s g2)(final_state_s g3)\n"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(clock g0 g2)\n\n"
 
@@ -264,7 +277,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Alternate Precedence \n(cur_state_s h0)\n(automaton h0 {activity2} h1)(automaton h0 {activity1} h2)(automaton h2 {activity2} h0)\n(final_state_s h0)\n"
+        result = f";Alternate Precedence \n(cur_state_s h0)\n(automaton h0 {activity2} h1 h)(automaton h0 {activity1} h2 h)(automaton h2 {activity2} h0 h)\n(final_state_s h0)\n"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(clock h0 h2)\n\n"
 
@@ -285,7 +298,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Responded Existence \n(cur_state_s l0)\n(automaton l0 {activity2} l1)(automaton l0 {activity1} l2)(automaton l2 {activity2} l1)\n(final_state_s l0)(final_state_s l1)\n"
+        result = f";Responded Existence \n(cur_state_s l0)\n(automaton l0 {activity2} l1 l)(automaton l0 {activity1} l2 l)(automaton l2 {activity2} l1 l)\n(final_state_s l0)(final_state_s l1)\n"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(clock l0 l2)\n\n"
 
@@ -305,7 +318,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Co Existence \n(cur_state_s m0)\n(automaton m0 {activity2} m1)(automaton m0 {activity1} m3)(automaton m1 {activity1} m2)(automaton m3 {activity2} m2)\n(final_state_s m0)(final_state_s m2)\n"
+        result = f";Co Existence \n(cur_state_s m0)\n(automaton m0 {activity2} m1 m)(automaton m0 {activity1} m3 m)(automaton m1 {activity1} m2 m)(automaton m3 {activity2} m2 m)\n(final_state_s m0)(final_state_s m2)\n"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(clock m0 m1)\n(clock m0 m3)\n\n"
             
@@ -336,7 +349,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Succession \n(cur_state_s n0)\n(automaton n0 {activity2} n1)(automaton n0 {activity1} n2)(automaton n2 {activity2} n3)(automaton n3 {activity1} n2)\n(final_state_s n0)(final_state_s n3)\n"
+        result = f";Succession \n(cur_state_s n0)\n(automaton n0 {activity2} n1 n)(automaton n0 {activity1} n2 n)(automaton n2 {activity2} n3 n)(automaton n3 {activity1} n2 n)\n(final_state_s n0)(final_state_s n3)\n"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(clock n0 n2)\n(clock n3 n2)\n\n"
             
@@ -360,7 +373,7 @@ def process_declare(automata_dict, user_input, events):
         activity1 = activity1.strip()  # Rimuove spazi da activity1
         activity2 = activity2.strip()
 
-        result = f";Alternate Succession \n(cur_state_s n0)\n(automaton n0 {activity2} n1)(automaton n0 {activity1} n2)(automaton n2 {activity2} n0)(automaton n2 {activity1} n1)\n(final_state_s n0)\n"
+        result = f";Alternate Succession \n(cur_state_s n0)\n(automaton n0 {activity2} n1 n)(automaton n0 {activity1} n2 n)(automaton n2 {activity2} n0 n)(automaton n2 {activity1} n1 n)\n(final_state_s n0)\n"
         if (user_input == 'MTL' or user_input == 'MTL-d'):
             result += f"\n(clock n0 n2)\n\n"
             
@@ -462,12 +475,12 @@ def handle_chain_res(automata_dict, events):
             result += f";Chain Response \n(cur_state_s f0)\n"
             
             for activity in activities:
-                result += f"(automaton f0 {activity[0]} f1)(automaton f1 {activity[3]} f0)\n"
+                result += f"(automaton f0 {activity[0]} f1 f)(automaton f1 {activity[3]} f0 f)\n"
             
             for event in events:
                 event_activity = event.split(':')[0]
                 if all(event_activity != activity[2] for activity in activities):
-                    result += f"(automaton f1 {event_activity} f2)\n"
+                    result += f"(automaton f1 {event_activity} f2 f)\n"
             
             result += "(final_state_s f0)\n"
             result += "\n(clock f0 f1)\n\n"
@@ -514,12 +527,12 @@ def handle_chain_prec(automata_dict, events):
             result += f";Chain Precedence \n(cur_state_s i0)\n"
             
             for activity in activities:
-                result += f"(automaton i0 {activity[3]} i1)(automaton i0 {activity[0]} i2)\n"
+                result += f"(automaton i0 {activity[3]} i1 i)(automaton i0 {activity[0]} i2 i)\n"
             
             for event in events:
                 event_activity = event.split(':')[0]
                 if all(event_activity != activity[0] for activity in activities):
-                    result += f"(automaton i2 {event_activity} i0)\n"
+                    result += f"(automaton i2 {event_activity} i0 i)\n"
             
             result += "(final_state_s i0)\n"
             result += "\n(clock i0 i2)\n\n"
@@ -568,12 +581,12 @@ def handle_chain_succ(automata_dict, events):
             result += f";Chain Succession \n(cur_state_s o0)\n"
             
             for activity in activities:
-                result += f"(automaton o0 {activity[3]} o1)(automaton o0 {activity[0]} o2)(automaton o2 {activity[3]} o0)\n"
+                result += f"(automaton o0 {activity[3]} o1 o)(automaton o0 {activity[0]} o2 o)(automaton o2 {activity[3]} o0 o)\n"
             
             for event in events:
                 event_activity = event.split(':')[0]
                 if all(event_activity != activity[3] for activity in activities):
-                    result += f"(automaton o2 {event_activity} o1)\n"
+                    result += f"(automaton o2 {event_activity} o1 o)\n"
             
             result += "(final_state_s o0)\n"
             result += "\n(clock o0 o2)\n\n"

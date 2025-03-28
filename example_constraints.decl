@@ -1,6 +1,4 @@
 activity A
-bind A: duration
-duration: integer between 2 and 5
 activity B
 activity C
 activity D
